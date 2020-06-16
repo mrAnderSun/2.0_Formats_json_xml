@@ -1,54 +1,27 @@
 import xml.etree.ElementTree as ET
-from pprint import pprint
+import get_top_words
 
 
 #  поиск нужного текста
-def main_xml():
+def xml_parser():
+    description = []
     parser = ET.XMLParser(encoding="utf-8")
     tree = ET.parse("newsafr.xml", parser)
     root = tree.getroot()
     channel = root.find("channel")
     items = channel.findall("item")
-    big_string(items)
+    get_words_more_6(items, description)
+    get_top_words.sorted_top_words(get_top_words.words_count(description))
 
 
-#  объединения фрагментов описания
-def big_string(items):
-    description_tree = ""
+def get_words_more_6(items, description):
     for item in items:
         text = item.find("description").text
-        description_tree = description_tree + " " + text
-    six_and_more(description_tree)
-
-
-#  создание словаря {частота попадния слова : слово (len от 6 и выше)}
-def six_and_more(description_tree):
-    words = {}
-    description_total = ""
-    for word in description_tree.split():
-        if len(word) > 6:
-            description_total = description_total + " " + word
-    total_words = len(description_total)
-    for word in description_total.split():
-        word_count = description_total.count(word)
-        word_percent = word_count / total_words * 100
-        words[word_percent] = word
-    sorted_top_words(words)
-
-
-#  вывод top 10
-def sorted_top_words(words):
-    words_top = {}
-    for k, v in sorted(words.items(), reverse=True):
-        words_top.update([(k, v)])
-        if len(words_top) < 10:
-            continue
-        else:
-            print("Top 10 words:")
-            top = words_top
-            pprint(top)
-            break
+        for word in text.casefold().split():
+            if len(word) > 6:
+                description.append(word)
+    return description
 
 
 #  Begin
-main_xml()
+xml_parser()
